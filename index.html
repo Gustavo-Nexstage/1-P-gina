@@ -1,0 +1,1500 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Batata Clicker 3D - Plantação & Monstro</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: #87ceeb;
+      font-family: 'Arial Black', sans-serif;
+      user-select: none;
+    }
+    canvas {
+      display: block;
+    }
+
+    /* --- TELA INICIAL --- */
+    #start-screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+      padding: 40px 0;
+      box-sizing: border-box;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
+
+    .title-container {
+      display: flex;
+      gap: 5px;
+      pointer-events: auto;
+    }
+
+    .title-letter {
+      display: inline-block;
+      font-size: 48px;
+      color: #ffe600;
+      text-shadow: 3px 3px 0px #b8860b, 5px 5px 10px rgba(0,0,0,0.8);
+      animation: wave 1.2s ease-in-out infinite alternate;
+    }
+
+    .title-letter:nth-child(1) { animation-delay: 0.0s; }
+    .title-letter:nth-child(2) { animation-delay: 0.1s; }
+    .title-letter:nth-child(3) { animation-delay: 0.2s; }
+    .title-letter:nth-child(4) { animation-delay: 0.3s; }
+    .title-letter:nth-child(5) { animation-delay: 0.4s; }
+    .title-letter:nth-child(6) { animation-delay: 0.5s; }
+    .title-letter:nth-child(7) { animation-delay: 0.6s; margin-right: 15px; }
+    .title-letter:nth-child(8) { animation-delay: 0.7s; }
+    .title-letter:nth-child(9) { animation-delay: 0.8s; }
+    .title-letter:nth-child(10) { animation-delay: 0.9s; }
+    .title-letter:nth-child(11) { animation-delay: 1.0s; }
+    .title-letter:nth-child(12) { animation-delay: 1.1s; }
+    .title-letter:nth-child(13) { animation-delay: 1.2s; }
+    .title-letter:nth-child(14) { animation-delay: 1.3s; }
+
+    @keyframes wave {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-20px); }
+    }
+
+    .start-instruction {
+      color: #fff;
+      font-size: 18px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.9);
+      background: rgba(0,0,0,0.5);
+      padding: 10px 20px;
+      border-radius: 20px;
+      animation: pulse 1.5s infinite alternate;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.6; transform: scale(0.98); }
+      100% { opacity: 1; transform: scale(1.02); }
+    }
+
+    /* --- PLACAR E BOTÃO DA LOJA --- */
+    #ui-container {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      z-index: 10;
+      pointer-events: auto;
+    }
+
+    .potato-badge {
+      min-width: 80px;
+      height: 50px;
+      padding: 0 15px;
+      background: radial-gradient(circle at 30% 30%, #f6d365, #d4a32b);
+      border-radius: 25px;
+      box-shadow: inset -3px -3px 6px rgba(0,0,0,0.3), 0 4px 10px rgba(0,0,0,0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      box-sizing: border-box;
+    }
+
+    #counter {
+      color: #fff;
+      font-size: 22px;
+      font-weight: bold;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+    }
+
+    /* --- BOTÃO DE LOJA --- */
+    #shop-btn {
+      width: 80px;
+      height: 52px;
+      background: #8b4513;
+      border: 3px solid #5a2d0c;
+      border-radius: 8px;
+      cursor: pointer;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      padding-bottom: 5px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+      transition: transform 0.2s ease;
+      box-sizing: border-box;
+    }
+
+    #shop-btn:hover {
+      transform: scale(1.08);
+    }
+
+    .tent-roof {
+      position: absolute;
+      top: -12px;
+      left: -6px;
+      width: 86px;
+      height: 20px;
+      background: repeating-linear-gradient(
+        45deg,
+        #e74c3c,
+        #e74c3c 10px,
+        #ffffff 10px,
+        #ffffff 20px
+      );
+      border-radius: 6px 6px 0 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      border: 2px solid #a93226;
+      box-sizing: border-box;
+    }
+
+    .shop-text {
+      color: #ffe600;
+      font-family: 'Arial Black', sans-serif;
+      font-size: 14px;
+      text-shadow: 2px 2px 0px #000;
+      z-index: 2;
+    }
+
+    /* --- PAPEL ENROLADO DA LOJA --- */
+    #shop-scroll {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scaleY(0);
+      transform-origin: top center;
+      width: 340px;
+      height: 460px;
+      background: #f4e4bc;
+      border-left: 6px solid #d4b886;
+      border-right: 6px solid #d4b886;
+      box-shadow: inset 0 0 20px rgba(139, 69, 19, 0.3), 0 10px 25px rgba(0,0,0,0.6);
+      z-index: 150;
+      transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 0;
+      box-sizing: border-box;
+      border-radius: 4px;
+      pointer-events: auto;
+    }
+
+    #shop-scroll.open {
+      transform: translate(-50%, -50%) scaleY(1);
+    }
+
+    .scroll-handle {
+      width: 108%;
+      height: 22px;
+      background: linear-gradient(to right, #8b4513, #a0522d, #8b4513);
+      border-radius: 10px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.4);
+    }
+
+    .shop-title {
+      font-size: 24px;
+      color: #5a2d0c;
+      text-shadow: 1px 1px 0px #fff;
+      margin-top: 5px;
+      margin-bottom: 10px;
+    }
+
+    .shop-items-container {
+      width: 90%;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow-y: auto;
+      padding-right: 5px;
+    }
+
+    .shop-item {
+      background: rgba(139, 69, 19, 0.15);
+      border: 2px solid #8b4513;
+      border-radius: 10px;
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+    }
+
+    .item-icon {
+      font-size: 22px;
+      margin-right: 8px;
+    }
+
+    .item-info {
+      display: flex;
+      flex-direction: column;
+      text-align: left;
+      flex: 1;
+    }
+
+    .item-name {
+      font-size: 14px;
+      color: #3d2314;
+    }
+
+    .item-desc {
+      font-size: 10px;
+      color: #6b4423;
+      font-family: sans-serif;
+      font-weight: bold;
+    }
+
+    .buy-btn {
+      background: #27ae60;
+      color: #fff;
+      border: 2px solid #1e8449;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-family: 'Arial Black', sans-serif;
+      font-size: 11px;
+      cursor: pointer;
+      box-shadow: 0 3px 0 #1e8449;
+      transition: transform 0.1s, background 0.2s;
+    }
+
+    .buy-btn:hover {
+      background: #2ecc71;
+    }
+
+    .buy-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #1e8449;
+    }
+
+    .buy-btn.disabled {
+      background: #7f8c8d;
+      border-color: #5d6d7e;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+
+    /* --- ALERTA E SETA --- */
+    #recover-alert {
+      position: absolute;
+      top: 8%;
+      left: 50%;
+      transform: translateX(-50%);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      z-index: 200;
+      pointer-events: none;
+    }
+
+    .arrow-down {
+      font-size: 50px;
+      color: #ff2222;
+      text-shadow: 0 0 10px #fff, 2px 2px 0 #000;
+      animation: bounceArrow 0.8s infinite alternate;
+    }
+
+    @keyframes bounceArrow {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(15px); }
+    }
+
+    .alert-text {
+      background: rgba(0, 0, 0, 0.85);
+      color: #ffe600;
+      padding: 12px 25px;
+      border-radius: 30px;
+      font-size: 20px;
+      border: 3px solid #ffe600;
+      box-shadow: 0 0 15px rgba(255, 230, 0, 0.6);
+      text-align: center;
+    }
+
+    #black-flash {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: black;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 300;
+      transition: opacity 0.4s ease;
+    }
+
+    #minigame-msg {
+      position: absolute;
+      top: 35%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 32px;
+      font-weight: bold;
+      text-align: center;
+      z-index: 250;
+      display: none;
+      text-shadow: 3px 3px 6px rgba(0,0,0,0.9);
+      padding: 20px 30px;
+      border-radius: 20px;
+    }
+
+    .msg-win {
+      color: #00ff66;
+      background: rgba(0, 50, 0, 0.9);
+      border: 3px solid #00ff66;
+    }
+
+    .msg-lose {
+      color: #ff3333;
+      background: rgba(50, 0, 0, 0.9);
+      border: 3px solid #ff3333;
+    }
+
+    .plus-one {
+      position: absolute;
+      color: #ffe600;
+      font-size: 28px;
+      font-weight: bold;
+      text-shadow: 1px 1px 4px rgba(0,0,0,0.9);
+      pointer-events: none;
+      animation: floatUp 0.8s ease-out forwards;
+      z-index: 20;
+    }
+
+    @keyframes floatUp {
+      0% { opacity: 1; transform: translate(-50%, -50%) translateY(0) scale(1); }
+      100% { opacity: 0; transform: translate(-50%, -50%) translateY(-60px) scale(1.3); }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="start-screen">
+    <div class="title-container">
+      <span class="title-letter">B</span>
+      <span class="title-letter">A</span>
+      <span class="title-letter">T</span>
+      <span class="title-letter">A</span>
+      <span class="title-letter">T</span>
+      <span class="title-letter">A</span>
+      <span class="title-letter"> </span>
+      <span class="title-letter">C</span>
+      <span class="title-letter">L</span>
+      <span class="title-letter">I</span>
+      <span class="title-letter">C</span>
+      <span class="title-letter">K</span>
+      <span class="title-letter">E</span>
+      <span class="title-letter">R</span>
+    </div>
+    <div class="start-instruction">Clique na tampa para abrir!</div>
+  </div>
+
+  <div id="ui-container">
+    <div class="potato-badge">
+      <span id="counter">0</span>
+    </div>
+    <div id="shop-btn">
+      <div class="tent-roof"></div>
+      <span class="shop-text">LOJA</span>
+    </div>
+  </div>
+
+  <div id="shop-scroll">
+    <div class="scroll-handle"></div>
+    <div class="shop-title">LOJA</div>
+    
+    <div class="shop-items-container">
+      <div class="shop-item">
+        <span class="item-icon">🥔</span>
+        <div class="item-info">
+          <span class="item-name">2x Cliques</span>
+          <span class="item-desc">Dobra o ganho por clique</span>
+        </div>
+        <button id="buy-multiplier-btn" class="buy-btn">50</button>
+      </div>
+
+      <div class="shop-item">
+        <span class="item-icon">🖱️</span>
+        <div class="item-info">
+          <span class="item-name">Auto Click</span>
+          <span class="item-desc">Monstro clica a cada 0.5s</span>
+        </div>
+        <button id="buy-autoclick-btn" class="buy-btn">100</button>
+      </div>
+
+      <div class="shop-item">
+        <span class="item-icon">🌱</span>
+        <div class="item-info">
+          <span class="item-name">Plantação</span>
+          <span class="item-desc">Rende batatas por seg.</span>
+        </div>
+        <button id="buy-farm-btn" class="buy-btn">20.000</button>
+      </div>
+    </div>
+
+    <div class="scroll-handle"></div>
+  </div>
+
+  <div id="recover-alert">
+    <div class="arrow-down">⬇</div>
+    <div id="alert-text-content" class="alert-text">Clique no armário para recuperar a batata!</div>
+  </div>
+
+  <div id="black-flash"></div>
+  <div id="minigame-msg"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <script>
+    // --- ESTADO DO JOGO ---
+    let isPlaying = false;
+    let cameraAngle = 0;
+    let monsterState = 'idle';
+    let grabProgress = 0;
+
+    // SISTEMA DE CLIQUES E MULTIPLICADOR
+    let count = 0;
+    let clickMultiplier = 1;
+    let multiplierCost = 50;
+    let upgradePurchases = 0;
+
+    // AUTO CLICK (MONSTRO BRANCO)
+    let autoClickPower = 0;
+    let autoClickCost = 100;
+    let autoClickTimer = null;
+    let autoClickLevel = 0;
+
+    // PLANTAÇÃO DE BATATAS
+    let farmLevel = 0;
+    let farmCost = 20000;
+    let farmProduction = 50;
+    let farmTimer = null;
+
+    // TEMPORIZADOR DO ARMÁRIO (5 Minutos = 300 Segundos)
+    let cabinetTimeLeft = 300; 
+    let timerInterval = null;
+
+    let doorsFalling = false;
+    let leftDoorPhysics = { y: 1.9, rotX: 0, rotZ: 0, velY: 0, rotVelX: 0.08, rotVelZ: -0.05, z: -3.8 };
+    let rightDoorPhysics = { y: 1.9, rotX: 0, rotZ: 0, velY: 0, rotVelX: 0.08, rotVelZ: 0.05, z: -3.8 };
+
+    // MINIGAME DOS COPOS
+    let inMinigame = false;
+    let minigameState = 'none'; 
+    let cups = [];
+    let cupPositions = [-0.8, 0, 0.8];
+    let potatoCupIndex = 1; 
+    let shuffleCount = 0;
+    let maxShuffles = 13;
+
+    const startScreen = document.getElementById('start-screen');
+    const uiContainer = document.getElementById('ui-container');
+    const shopBtn = document.getElementById('shop-btn');
+    const shopScroll = document.getElementById('shop-scroll');
+    const buyMultiplierBtn = document.getElementById('buy-multiplier-btn');
+    const buyAutoClickBtn = document.getElementById('buy-autoclick-btn');
+    const buyFarmBtn = document.getElementById('buy-farm-btn');
+    const recoverAlert = document.getElementById('recover-alert');
+    const alertTextContent = document.getElementById('alert-text-content');
+    const blackFlash = document.getElementById('black-flash');
+    const minigameMsg = document.getElementById('minigame-msg');
+    const counterEl = document.getElementById('counter');
+
+    shopBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      shopScroll.classList.toggle('open');
+      updateShopUI();
+    });
+
+    // BUY 2X CLIQUES
+    buyMultiplierBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (count >= multiplierCost) {
+        count -= multiplierCost;
+        clickMultiplier *= 2;
+        multiplierCost *= 3; 
+        upgradePurchases++;
+
+        if (upgradePurchases === 1) {
+          potato.position.set(0, 1.52, 0.15);  
+          potato2.position.set(0, 1.52, -0.15); 
+          potato2.visible = true;
+        }
+
+        counterEl.textContent = count;
+        updateShopUI();
+      }
+    });
+
+    // BUY AUTO CLICK (PREÇO QUADRIPLICA)
+    buyAutoClickBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (count >= autoClickCost) {
+        count -= autoClickCost;
+        autoClickLevel++;
+
+        if (autoClickLevel === 1) {
+          autoClickPower = 1; 
+          whiteMonsterGroup.visible = true;
+          startAutoClicker();
+        } else {
+          autoClickPower *= 2; 
+        }
+
+        autoClickCost *= 4; // Preço quadriplica!
+        counterEl.textContent = count;
+        updateShopUI();
+      }
+    });
+
+    // BUY PLANTAÇÃO DE BATATA (PREÇO QUADRIPLICA)
+    buyFarmBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (count >= farmCost) {
+        count -= farmCost;
+        farmLevel++;
+
+        if (farmLevel === 1) {
+          potatoFarmGroup.visible = true;
+          startFarmProduction();
+        } else {
+          farmProduction *= 3; // Triplica os pontos gerados
+        }
+
+        farmCost *= 4; // Preço quadriplica!
+        counterEl.textContent = count;
+        updateShopUI();
+      }
+    });
+
+    function startAutoClicker() {
+      if (autoClickTimer) clearInterval(autoClickTimer);
+      autoClickTimer = setInterval(() => {
+        if (!isPlaying || inMinigame || monsterState !== 'idle') return;
+
+        let pointsGained = autoClickPower * clickMultiplier;
+        count += pointsGained;
+        counterEl.textContent = count;
+
+        // Animação do Monstro Branco na Frente
+        whiteMonsterArmPivot.rotation.x = -Math.PI / 3;
+        potato.scale.set(baseScale.x * 1.15, baseScale.y * 1.15, baseScale.z * 1.15);
+
+        setTimeout(() => {
+          whiteMonsterArmPivot.rotation.x = 0;
+          potato.scale.set(baseScale.x, baseScale.y, baseScale.z);
+        }, 150);
+
+        updateShopUI();
+      }, 500);
+    }
+
+    function startFarmProduction() {
+      if (farmTimer) clearInterval(farmTimer);
+      farmTimer = setInterval(() => {
+        if (!isPlaying || inMinigame) return;
+
+        count += farmProduction;
+        counterEl.textContent = count;
+
+        showFarmFloatText(`+${farmProduction}`);
+
+        updateShopUI();
+      }, 1000);
+    }
+
+    function showFarmFloatText(text) {
+      const vector = new THREE.Vector3();
+      potatoFarmGroup.getWorldPosition(vector);
+      vector.y += 1.0;
+      vector.project(camera);
+
+      const x = (vector.x * .5 + .5) * window.innerWidth;
+      const y = (-(vector.y * .5) + .5) * window.innerHeight;
+
+      const floatEl = document.createElement('div');
+      floatEl.classList.add('plus-one');
+      floatEl.style.color = '#7bc676';
+      floatEl.textContent = text;
+      floatEl.style.left = `${x}px`;
+      floatEl.style.top = `${y}px`;
+      document.body.appendChild(floatEl);
+
+      setTimeout(() => floatEl.remove(), 800);
+    }
+
+    function updateShopUI() {
+      buyMultiplierBtn.textContent = multiplierCost.toLocaleString('pt-BR');
+      buyMultiplierBtn.classList.toggle('disabled', count < multiplierCost);
+
+      buyAutoClickBtn.textContent = autoClickCost.toLocaleString('pt-BR');
+      buyAutoClickBtn.classList.toggle('disabled', count < autoClickCost);
+
+      buyFarmBtn.textContent = farmCost.toLocaleString('pt-BR');
+      buyFarmBtn.classList.toggle('disabled', count < farmCost);
+    }
+
+    // --- CENA E CÂMERA ---
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x87ceeb);
+    
+    const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const initialCamPos = { x: 0, y: 3.2, z: 3.2 };
+    camera.position.set(initialCamPos.x, initialCamPos.y, initialCamPos.z);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    document.body.appendChild(renderer.domElement);
+
+    // ILUMINAÇÃO
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+    scene.add(ambientLight);
+
+    const sunLight = new THREE.DirectionalLight(0xfffaed, 1.2);
+    sunLight.position.set(6, 14, 6);
+    sunLight.castShadow = true;
+    scene.add(sunLight);
+
+    const minigameSpotlight = new THREE.SpotLight(0xffffff, 0, 25, Math.PI / 4, 0.5, 1);
+    minigameSpotlight.position.set(0, 106, -98.5);
+    minigameSpotlight.target.position.set(0, 100, -100);
+    scene.add(minigameSpotlight);
+    scene.add(minigameSpotlight.target);
+
+    // MATERIAIS
+    const woodMaterial = new THREE.MeshStandardMaterial({ color: 0x7c4700, roughness: 0.5 });
+    const grassMaterial = new THREE.MeshStandardMaterial({ color: 0x3a7d28, roughness: 0.9 });
+    const dirtMaterial = new THREE.MeshStandardMaterial({ color: 0x4a2e16, roughness: 0.9 });
+    const fenceMaterial = new THREE.MeshStandardMaterial({ color: 0x8b5a2b, roughness: 0.7 });
+    const brickMaterial = new THREE.MeshStandardMaterial({ color: 0x9e3b2b, roughness: 0.8 });
+    const metalMaterial = new THREE.MeshStandardMaterial({ color: 0x222222, metalness: 0.8, roughness: 0.2 });
+    const meatMaterial = new THREE.MeshStandardMaterial({ color: 0x6e1d13, roughness: 0.4 });
+    const chairMaterial = new THREE.MeshStandardMaterial({ color: 0x3a200d, roughness: 0.6 });
+    const houseWallMat = new THREE.MeshStandardMaterial({ color: 0xdfd3c3, roughness: 0.7 });
+    const roofMat = new THREE.MeshStandardMaterial({ color: 0x8b2500, roughness: 0.6 });
+    const cupMat = new THREE.MeshStandardMaterial({ color: 0xd32f2f, roughness: 0.3 });
+    const eyeWhiteMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    const eyePupilMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+    const leafMaterial = new THREE.MeshStandardMaterial({ color: 0x2e8b57, roughness: 0.6 });
+
+    // CHÃO DE GRAMA
+    const grassFloor = new THREE.Mesh(new THREE.PlaneGeometry(32, 32), grassMaterial);
+    grassFloor.rotation.x = -Math.PI / 2;
+    grassFloor.receiveShadow = true;
+    scene.add(grassFloor);
+
+    // CASAS E VIZINHOS
+    const mainHouseGroup = new THREE.Group();
+    const houseBackWall = new THREE.Mesh(new THREE.BoxGeometry(16, 6, 1), houseWallMat);
+    houseBackWall.position.set(0, 3, 5);
+    mainHouseGroup.add(houseBackWall);
+
+    const doorFrame = new THREE.Mesh(new THREE.BoxGeometry(2.2, 3.5, 1.1), new THREE.MeshStandardMaterial({ color: 0x2d1a0e }));
+    doorFrame.position.set(0, 1.75, 4.95);
+    mainHouseGroup.add(doorFrame);
+    scene.add(mainHouseGroup);
+
+    function createNeighborHouse(x, z, rotY) {
+      const house = new THREE.Group();
+      const body = new THREE.Mesh(new THREE.BoxGeometry(6, 4, 6), houseWallMat);
+      body.position.y = 2;
+      body.castShadow = true;
+      house.add(body);
+
+      const roof = new THREE.Mesh(new THREE.ConeGeometry(5, 2.5, 4), roofMat);
+      roof.position.y = 5.25;
+      roof.rotation.y = Math.PI / 4;
+      roof.castShadow = true;
+      house.add(roof);
+
+      house.position.set(x, 0, z);
+      house.rotation.y = rotY;
+      scene.add(house);
+    }
+
+    createNeighborHouse(-12, -9, 0);
+    createNeighborHouse(12, -9, 0);
+    createNeighborHouse(-14, 0, Math.PI / 2);
+    createNeighborHouse(14, 0, -Math.PI / 2);
+
+    // CERCAS
+    function buildAlignedFences() {
+      const fenceGroup = new THREE.Group();
+      const fenceZ = -8;
+      for (let x = -10; x <= 10; x += 0.4) {
+        const picket = new THREE.Mesh(new THREE.BoxGeometry(0.3, 1.8, 0.08), fenceMaterial);
+        picket.position.set(x, 0.9, fenceZ);
+        picket.castShadow = true;
+        fenceGroup.add(picket);
+      }
+      const rail1 = new THREE.Mesh(new THREE.BoxGeometry(20.4, 0.1, 0.1), fenceMaterial);
+      rail1.position.set(0, 0.5, fenceZ + 0.05);
+      const rail2 = rail1.clone();
+      rail2.position.y = 1.3;
+      fenceGroup.add(rail1);
+      fenceGroup.add(rail2);
+
+      for (let z = fenceZ; z <= 4; z += 0.4) {
+        const picketL = new THREE.Mesh(new THREE.BoxGeometry(0.08, 1.8, 0.3), fenceMaterial);
+        picketL.position.set(-10, 0.9, z);
+        picketL.castShadow = true;
+        fenceGroup.add(picketL);
+
+        const picketR = new THREE.Mesh(new THREE.BoxGeometry(0.08, 1.8, 0.3), fenceMaterial);
+        picketR.position.set(10, 0.9, z);
+        picketR.castShadow = true;
+        fenceGroup.add(picketR);
+      }
+      scene.add(fenceGroup);
+    }
+    buildAlignedFences();
+
+    // PLANTAÇÃO DE BATATAS (AO LADO DO ARMÁRIO E PERTO DA CERCA)
+    const potatoFarmGroup = new THREE.Group();
+    function buildPotatoFarm() {
+      for (let i = 0; i < 2; i++) {
+        const mound = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.15, 3.5), dirtMaterial);
+        mound.position.set(i * 1.5, 0.075, 0);
+        mound.receiveShadow = true;
+        potatoFarmGroup.add(mound);
+
+        for (let z = -1.3; z <= 1.3; z += 0.65) {
+          const plantPotato = new THREE.Mesh(new THREE.SphereGeometry(0.12, 12, 12), new THREE.MeshStandardMaterial({ color: 0xe3c152 }));
+          plantPotato.position.set(i * 1.5, 0.18, z);
+          plantPotato.scale.set(1.2, 0.8, 1.0);
+          potatoFarmGroup.add(plantPotato);
+
+          const leaf = new THREE.Mesh(new THREE.SphereGeometry(0.08, 8, 8), leafMaterial);
+          leaf.position.set(i * 1.5, 0.28, z);
+          leaf.scale.set(1.5, 0.4, 1.5);
+          potatoFarmGroup.add(leaf);
+        }
+      }
+
+      potatoFarmGroup.position.set(2.8, 0, -5.8);
+      potatoFarmGroup.visible = false;
+      scene.add(potatoFarmGroup);
+    }
+    buildPotatoFarm();
+
+    // CHURRASQUEIRA COM FUMAÇA
+    const bbqGroup = new THREE.Group();
+    let smokeParticles = [];
+
+    function buildBarbecue() {
+      const base = new THREE.Mesh(new THREE.BoxGeometry(1.6, 1.2, 1.2), brickMaterial);
+      base.position.y = 0.6;
+      bbqGroup.add(base);
+
+      const hood = new THREE.Mesh(new THREE.BoxGeometry(1.6, 1.0, 1.2), brickMaterial);
+      hood.position.y = 2.1;
+      bbqGroup.add(hood);
+
+      const chimney = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.2, 0.8), brickMaterial);
+      chimney.position.y = 3.2;
+      bbqGroup.add(chimney);
+
+      const grillGrid = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.05, 0.9), metalMaterial);
+      grillGrid.position.set(0, 1.25, 0);
+      bbqGroup.add(grillGrid);
+
+      const steak1 = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.08, 0.25), meatMaterial);
+      steak1.position.set(-0.3, 1.3, -0.1);
+      bbqGroup.add(steak1);
+
+      bbqGroup.position.set(-4.8, 0, -3.2);
+      bbqGroup.rotation.y = Math.PI / 5;
+      scene.add(bbqGroup);
+
+      const pGeo = new THREE.SphereGeometry(0.12, 8, 8);
+      const pMat = new THREE.MeshBasicMaterial({ color: 0xdddddd, transparent: true, opacity: 0.4 });
+
+      for (let i = 0; i < 20; i++) {
+        const particle = new THREE.Mesh(pGeo, pMat.clone());
+        resetParticle(particle);
+        particle.position.y = 3.8 + Math.random() * 1.5;
+        smokeParticles.push(particle);
+        scene.add(particle);
+      }
+    }
+
+    function resetParticle(p) {
+      const topChimneyWorld = new THREE.Vector3(0, 3.8, 0);
+      bbqGroup.localToWorld(topChimneyWorld);
+      p.position.copy(topChimneyWorld);
+      p.scale.set(1, 1, 1);
+      p.material.opacity = 0.4;
+    }
+
+    function updateSmoke() {
+      smokeParticles.forEach(p => {
+        p.position.y += 0.025;
+        p.scale.addScalar(0.015);
+        p.material.opacity -= 0.004;
+        if (p.material.opacity <= 0) resetParticle(p);
+      });
+    }
+    buildBarbecue();
+
+    // MESA, CADEIRAS, PANELA E BATATAS
+    const tableGroup = new THREE.Group();
+    const tableTop = new THREE.Mesh(new THREE.BoxGeometry(4, 0.2, 2.5), woodMaterial);
+    tableTop.position.y = 1.3;
+    tableTop.receiveShadow = true;
+    tableTop.castShadow = true;
+    tableGroup.add(tableTop);
+
+    const legPositions = [[-1.8, 0.65, -1.0], [1.8, 0.65, -1.0], [-1.8, 0.65, 1.0], [1.8, 0.65, 1.0]];
+    legPositions.forEach(pos => {
+      const leg = new THREE.Mesh(new THREE.BoxGeometry(0.2, 1.3, 0.2), woodMaterial);
+      leg.position.set(...pos);
+      leg.castShadow = true;
+      tableGroup.add(leg);
+    });
+    scene.add(tableGroup);
+
+    function createSquareChair(x, z, rotationY) {
+      const chair = new THREE.Group();
+      const seat = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.1, 0.8), chairMaterial);
+      seat.position.y = 0.7;
+      chair.add(seat);
+
+      const back = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.1), chairMaterial);
+      back.position.set(0, 1.15, -0.35);
+      chair.add(back);
+
+      const cLegPos = [[-0.35, 0.35, -0.35], [0.35, 0.35, -0.35], [-0.35, 0.35, 0.35], [0.35, 0.35, 0.35]];
+      cLegPos.forEach(p => {
+        const leg = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.7, 0.1), chairMaterial);
+        leg.position.set(...p);
+        chair.add(leg);
+      });
+
+      chair.position.set(x, 0, z);
+      chair.rotation.y = rotationY;
+      scene.add(chair);
+    }
+    createSquareChair(-2.5, 0, Math.PI / 2);
+    createSquareChair(2.5, 0, -Math.PI / 2);
+
+    const plate = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.45, 0.06, 32), new THREE.MeshStandardMaterial({ color: 0xf5f5f5 }));
+    plate.position.set(0, 1.43, 0);
+    scene.add(plate);
+
+    // BATATA 1
+    const potato = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 16), new THREE.MeshStandardMaterial({ color: 0xe3c152, roughness: 0.7 }));
+    const baseScale = { x: 1.4, y: 0.85, z: 0.95 };
+    potato.scale.set(baseScale.x, baseScale.y, baseScale.z);
+    potato.position.set(0, 1.52, 0);
+    scene.add(potato);
+
+    // BATATA 2
+    const potato2 = potato.clone();
+    potato2.position.set(0, 1.52, -0.15);
+    potato2.visible = false;
+    scene.add(potato2);
+
+    // CLOCHE / PANELA
+    const clocheGroup = new THREE.Group();
+    const dome = new THREE.Mesh(new THREE.SphereGeometry(0.55, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2), new THREE.MeshStandardMaterial({ color: 0xdcdcdc, metalness: 0.9, roughness: 0.2 }));
+    const handle = new THREE.Mesh(new THREE.SphereGeometry(0.08, 16, 16), new THREE.MeshStandardMaterial({ color: 0x222222, metalness: 0.8 }));
+    handle.position.y = 0.58;
+    clocheGroup.add(dome);
+    clocheGroup.add(handle);
+    clocheGroup.position.set(0, 1.46, 0);
+    scene.add(clocheGroup);
+
+    // ARMÁRIO COM TEMPORIZADOR
+    const cabinetGroup = new THREE.Group();
+    const cabinetBody = new THREE.Mesh(new THREE.BoxGeometry(2.4, 3.8, 0.8), new THREE.MeshStandardMaterial({ color: 0x3d2314 }));
+    cabinetBody.position.y = 1.9;
+    cabinetGroup.add(cabinetBody);
+
+    const leftDoorPivot = new THREE.Group();
+    leftDoorPivot.position.set(-1.1, 1.9, 0.4);
+    const leftDoorMesh = new THREE.Mesh(new THREE.BoxGeometry(1.1, 3.6, 0.05), new THREE.MeshStandardMaterial({ color: 0x4a2c1b }));
+    leftDoorMesh.position.x = 0.55;
+    leftDoorPivot.add(leftDoorMesh);
+
+    const handleL = new THREE.Mesh(new THREE.SphereGeometry(0.07, 12, 12), metalMaterial);
+    handleL.position.set(0.9, 0, 0.08);
+    leftDoorPivot.add(handleL);
+    cabinetGroup.add(leftDoorPivot);
+
+    const rightDoorPivot = new THREE.Group();
+    rightDoorPivot.position.set(1.1, 1.9, 0.4);
+    const rightDoorMesh = leftDoorMesh.clone();
+    rightDoorMesh.position.x = -0.55;
+    rightDoorPivot.add(rightDoorMesh);
+
+    const handleR = new THREE.Mesh(new THREE.SphereGeometry(0.07, 12, 12), metalMaterial);
+    handleR.position.set(-0.9, 0, 0.08);
+    rightDoorPivot.add(handleR);
+    cabinetGroup.add(rightDoorPivot);
+
+    // PAPER TEMPORIZADOR (5 MINUTOS)
+    const timerCanvas = document.createElement('canvas');
+    timerCanvas.width = 256;
+    timerCanvas.height = 128;
+    const timerCtx = timerCanvas.getContext('2d');
+    const timerTexture = new THREE.CanvasTexture(timerCanvas);
+
+    function drawTimerOnPaper(textStr) {
+      timerCtx.fillStyle = '#f4e4bc';
+      timerCtx.fillRect(0, 0, 256, 128);
+      timerCtx.lineWidth = 6;
+      timerCtx.strokeStyle = '#8b4513';
+      timerCtx.strokeRect(4, 4, 248, 120);
+
+      timerCtx.font = 'bold 50px sans-serif';
+      timerCtx.fillStyle = '#cc0000';
+      timerCtx.textAlign = 'center';
+      timerCtx.textBaseline = 'middle';
+      timerCtx.fillText(textStr, 128, 64);
+      timerTexture.needsUpdate = true;
+    }
+    drawTimerOnPaper("05:00");
+
+    const paperMesh = new THREE.Mesh(
+      new THREE.PlaneGeometry(0.9, 0.45),
+      new THREE.MeshBasicMaterial({ map: timerTexture })
+    );
+    paperMesh.position.set(0, 2.8, 0.43);
+    cabinetGroup.add(paperMesh);
+
+    cabinetGroup.position.set(0, 0, -4.2);
+    scene.add(cabinetGroup);
+
+    // GERADOR DE MONSTROS
+    function createMonster(colorHex = 0x111111) {
+      const group = new THREE.Group();
+      const bodyMat = new THREE.MeshStandardMaterial({ color: colorHex });
+      
+      const body = new THREE.Mesh(new THREE.SphereGeometry(0.5, 16, 16), bodyMat);
+      body.position.y = 0.8;
+      group.add(body);
+
+      const head = new THREE.Mesh(new THREE.SphereGeometry(0.35, 16, 16), bodyMat);
+      head.position.y = 1.6;
+
+      const leftEye = new THREE.Mesh(new THREE.SphereGeometry(0.08, 12, 12), eyeWhiteMat);
+      leftEye.position.set(-0.12, 0.05, 0.28);
+      const leftPupil = new THREE.Mesh(new THREE.SphereGeometry(0.04, 12, 12), eyePupilMat);
+      leftPupil.position.set(-0.12, 0.05, 0.34);
+
+      const rightEye = new THREE.Mesh(new THREE.SphereGeometry(0.08, 12, 12), eyeWhiteMat);
+      rightEye.position.set(0.12, 0.05, 0.28);
+      const rightPupil = new THREE.Mesh(new THREE.SphereGeometry(0.04, 12, 12), eyePupilMat);
+      rightPupil.position.set(0.12, 0.05, 0.34);
+
+      head.add(leftEye);
+      head.add(leftPupil);
+      head.add(rightEye);
+      head.add(rightPupil);
+      group.add(head);
+
+      const armPivot = new THREE.Group();
+      armPivot.position.set(0.5, 1.4, 0.1);
+      const armMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.04, 1.1), bodyMat);
+      armMesh.position.set(0, -0.55, 0);
+      armPivot.add(armMesh);
+      group.add(armPivot);
+
+      return { group, armPivot };
+    }
+
+    // MONSTRO ROUBADOR (PRETO)
+    const monsterData = createMonster(0x111111);
+    const monsterGroup = monsterData.group;
+    const rightArmPivot = monsterData.armPivot;
+    monsterGroup.position.set(0, 0, -3.8);
+    monsterGroup.visible = false;
+    scene.add(monsterGroup);
+
+    // MONSTRO AJUDANTE (BRANCO) - DO OUTRO LADO DA MESA
+    const whiteMonsterData = createMonster(0xffffff);
+    const whiteMonsterGroup = whiteMonsterData.group;
+    const whiteMonsterArmPivot = whiteMonsterData.armPivot;
+    whiteMonsterGroup.position.set(0, 0, -1.5);
+    whiteMonsterGroup.rotation.y = 0;
+    whiteMonsterGroup.visible = false;
+    scene.add(whiteMonsterGroup);
+
+    // MINIGAME ROOM
+    const minigameRoomGroup = new THREE.Group();
+    minigameRoomGroup.position.set(0, 100, -100);
+
+    const darkFloor = new THREE.Mesh(new THREE.PlaneGeometry(20, 20), new THREE.MeshStandardMaterial({ color: 0x080808 }));
+    darkFloor.rotation.x = -Math.PI / 2;
+    minigameRoomGroup.add(darkFloor);
+
+    const miniTable = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.15, 1.6), woodMaterial);
+    miniTable.position.set(0, 1.2, 0);
+    minigameRoomGroup.add(miniTable);
+
+    const miniMonsterData = createMonster(0x111111);
+    const miniMonster = miniMonsterData.group;
+    miniMonster.position.set(0, 0, -1.0);
+    miniMonster.visible = true;
+    minigameRoomGroup.add(miniMonster);
+
+    for (let i = 0; i < 3; i++) {
+      const cupMesh = new THREE.Group();
+      const bodyM = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.15, 0.45, 32, 1, true), cupMat);
+      bodyM.position.y = 0.225;
+      const topM = new THREE.Mesh(new THREE.CircleGeometry(0.15, 32), cupMat);
+      topM.rotation.x = -Math.PI / 2;
+      topM.position.y = 0.45;
+
+      cupMesh.add(bodyM);
+      cupMesh.add(topM);
+
+      cupMesh.position.set(cupPositions[i], 1.275, 0);
+      cups.push(cupMesh);
+      minigameRoomGroup.add(cupMesh);
+    }
+    scene.add(minigameRoomGroup);
+
+    // TEMPORIZADOR DE 5 MINUTOS (300 SECONDS)
+    function startCabinetTimer() {
+      if (timerInterval) clearInterval(timerInterval);
+      cabinetTimeLeft = 300;
+
+      timerInterval = setInterval(() => {
+        if (!isPlaying || inMinigame || monsterState !== 'idle') return;
+
+        cabinetTimeLeft--;
+
+        let m = Math.floor(cabinetTimeLeft / 60);
+        let s = cabinetTimeLeft % 60;
+        let timeStr = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        drawTimerOnPaper(timeStr);
+
+        if (cabinetTimeLeft <= 0) {
+          clearInterval(timerInterval);
+          monsterState = 'walk_around_to_back';
+          monsterGroup.visible = true;
+          doorsFalling = true;
+        }
+      }, 1000);
+    }
+
+    // CONTROLES E CLIQUE
+    const mouse = { x: 0, y: 0 };
+    const targetMouse = { x: 0, y: 0 };
+    const lookAtTarget = new THREE.Vector3(0, 1.4, 0);
+
+    const raycaster = new THREE.Raycaster();
+    const mouseVector = new THREE.Vector2();
+
+    window.addEventListener('mousemove', (event) => {
+      const normalizedX = (event.clientX / window.innerWidth) * 2 - 1;
+      const normalizedY = (event.clientY / window.innerHeight) * 2 - 1;
+      targetMouse.x = normalizedX * 0.8;
+      targetMouse.y = -normalizedY * 0.5;
+      mouseVector.x = normalizedX;
+      mouseVector.y = -normalizedY;
+    });
+
+    window.addEventListener('pointerdown', (event) => {
+      if (shopScroll.classList.contains('open')) {
+        if (!shopScroll.contains(event.target) && !shopBtn.contains(event.target)) {
+          shopScroll.classList.remove('open');
+        }
+        return;
+      }
+
+      raycaster.setFromCamera(mouseVector, camera);
+
+      if (inMinigame && minigameState === 'picking') {
+        const intersects = raycaster.intersectObjects(cups, true);
+        if (intersects.length > 0) {
+          let clickedCup = intersects[0].object;
+          while (clickedCup.parent && clickedCup.parent !== minigameRoomGroup) {
+            clickedCup = clickedCup.parent;
+          }
+          let chosenIndex = cups.indexOf(clickedCup);
+          if (chosenIndex !== -1) {
+            revealCupResult(chosenIndex);
+          }
+        }
+        return;
+      }
+
+      if (monsterState === 'stolen_waiting_click') {
+        const intersectsCabinet = raycaster.intersectObjects(cabinetGroup.children, true);
+        if (intersectsCabinet.length > 0) {
+          recoverAlert.style.display = 'none';
+          triggerMinigameTransition();
+        }
+        return;
+      }
+
+      if (!isPlaying) {
+        const intersectsCloche = raycaster.intersectObjects(clocheGroup.children);
+        if (intersectsCloche.length > 0) {
+          isPlaying = true;
+          startScreen.style.opacity = '0';
+          setTimeout(() => {
+            startScreen.style.display = 'none';
+            uiContainer.style.display = 'flex';
+            startCabinetTimer();
+          }, 500);
+        }
+        return;
+      }
+
+      const intersectsPotato1 = raycaster.intersectObject(potato);
+      const intersectsPotato2 = raycaster.intersectObject(potato2);
+
+      if ((intersectsPotato1.length > 0 && potato.visible) || (intersectsPotato2.length > 0 && potato2.visible)) {
+        count += clickMultiplier;
+        counterEl.textContent = count;
+
+        let targetP = intersectsPotato1.length > 0 ? potato : potato2;
+        targetP.scale.set(baseScale.x * 1.25, baseScale.y * 1.25, baseScale.z * 1.25);
+        setTimeout(() => targetP.scale.set(baseScale.x, baseScale.y, baseScale.z), 100);
+
+        const plusOne = document.createElement('div');
+        plusOne.classList.add('plus-one');
+        plusOne.textContent = `+${clickMultiplier}`;
+        plusOne.style.left = `${event.clientX}px`;
+        plusOne.style.top = `${event.clientY}px`;
+        document.body.appendChild(plusOne);
+        setTimeout(() => plusOne.remove(), 800);
+
+        updateShopUI();
+      }
+    });
+
+    // MINIGAME LÓGICA
+    function triggerMinigameTransition() {
+      blackFlash.style.opacity = '1';
+
+      setTimeout(() => {
+        camera.position.set(0, 102.6, -97.0);
+        lookAtTarget.set(0, 101.3, -100);
+        camera.lookAt(lookAtTarget);
+
+        scene.add(potato);
+        potato.position.set(cupPositions[1], 101.35, -100);
+        potato.visible = true; 
+
+        for (let i = 0; i < 3; i++) {
+          cups[i].position.set(cupPositions[i], 2.2, 0); 
+        }
+
+        inMinigame = true;
+        minigameState = 'intro';
+
+        setTimeout(() => {
+          blackFlash.style.opacity = '0';
+          let lightAnim = setInterval(() => {
+            minigameSpotlight.intensity += 0.1;
+            if (minigameSpotlight.intensity >= 2) {
+              clearInterval(lightAnim);
+              startCoveringAnimation();
+            }
+          }, 40);
+        }, 500);
+      }, 400);
+    }
+
+    function startCoveringAnimation() {
+      minigameState = 'covering';
+      let progress = 0;
+
+      let coverInterval = setInterval(() => {
+        progress += 0.05;
+        
+        for (let i = 0; i < 3; i++) {
+          cups[i].position.y = 2.2 - progress * 0.925;
+        }
+
+        if (progress >= 0.7 && potato.visible) {
+          potato.visible = false;
+        }
+
+        if (progress >= 1.0) {
+          clearInterval(coverInterval);
+          startShuffling();
+        }
+      }, 20);
+    }
+
+    function startShuffling() {
+      minigameState = 'shuffling';
+      shuffleCount = 0;
+      potatoCupIndex = 1;
+      shuffleNextStep();
+    }
+
+    function shuffleNextStep() {
+      if (shuffleCount >= maxShuffles) {
+        minigameState = 'picking';
+        alertTextContent.textContent = "Clique em 1 dos copos para escolher!";
+        recoverAlert.style.display = 'flex';
+        return;
+      }
+
+      shuffleCount++;
+
+      let idx1 = Math.floor(Math.random() * 3);
+      let idx2 = Math.floor(Math.random() * 3);
+      while (idx1 === idx2) idx2 = Math.floor(Math.random() * 3);
+
+      let duration = (shuffleCount >= 8) ? 70 : 280; 
+
+      swapCups(idx1, idx2, duration, () => {
+        shuffleNextStep();
+      });
+    }
+
+    function swapCups(idx1, idx2, duration, onComplete) {
+      let cupA = cups[idx1];
+      let cupB = cups[idx2];
+      let startXA = cupA.position.x;
+      let startXB = cupB.position.x;
+      let startTime = Date.now();
+
+      let anim = setInterval(() => {
+        let elapsed = Date.now() - startTime;
+        let p = elapsed / duration;
+
+        if (p >= 1) {
+          p = 1;
+          clearInterval(anim);
+        }
+
+        cupA.position.x = startXA + (startXB - startXA) * p;
+        cupA.position.z = Math.sin(p * Math.PI) * 0.3;
+
+        cupB.position.x = startXB + (startXA - startXB) * p;
+        cupB.position.z = -Math.sin(p * Math.PI) * 0.3;
+
+        if (p === 1) {
+          if (potatoCupIndex === idx1) potatoCupIndex = idx2;
+          else if (potatoCupIndex === idx2) potatoCupIndex = idx1;
+
+          onComplete();
+        }
+      }, 16);
+    }
+
+    function revealCupResult(chosenIndex) {
+      minigameState = 'result';
+      recoverAlert.style.display = 'none';
+
+      let cupChoice = cups[chosenIndex];
+
+      let liftAnim = setInterval(() => {
+        cupChoice.position.y += 0.05;
+        if (cupChoice.position.y >= 2.2) {
+          clearInterval(liftAnim);
+
+          if (chosenIndex === potatoCupIndex) {
+            potato.position.set(cupChoice.position.x, 101.35, -100);
+            potato.visible = true;
+
+            count += 200;
+            counterEl.textContent = count;
+
+            minigameMsg.textContent = "ACERTOU! +200 CLIQUES!";
+            minigameMsg.className = "msg-win";
+            minigameMsg.style.display = "block";
+          } else {
+            count -= 1000;
+            counterEl.textContent = count;
+
+            let correctCup = cups[potatoCupIndex];
+            correctCup.position.y = 2.2;
+            potato.position.set(correctCup.position.x, 101.35, -100);
+            potato.visible = true;
+
+            minigameMsg.textContent = "ERROU! -1000 CLIQUES!";
+            minigameMsg.className = "msg-lose";
+            minigameMsg.style.display = "block";
+          }
+
+          updateShopUI();
+          setTimeout(exitMinigameBackToYard, 2500);
+        }
+      }, 20);
+    }
+
+    function exitMinigameBackToYard() {
+      blackFlash.style.opacity = '1';
+      minigameMsg.style.display = 'none';
+
+      setTimeout(() => {
+        minigameSpotlight.intensity = 0;
+        inMinigame = false;
+
+        camera.position.set(initialCamPos.x, initialCamPos.y, initialCamPos.z);
+        lookAtTarget.set(0, 1.4, 0);
+
+        if (upgradePurchases >= 1) {
+          potato.position.set(0, 1.52, 0.15);
+          potato2.position.set(0, 1.52, -0.15);
+          potato2.visible = true;
+        } else {
+          potato.position.set(0, 1.52, 0);
+        }
+        potato.visible = true;
+
+        monsterState = 'idle';
+        monsterGroup.visible = false;
+        monsterGroup.position.set(0, 0, -3.8);
+
+        startCabinetTimer();
+
+        blackFlash.style.opacity = '0';
+      }, 500);
+    }
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // LOOP DE ANIMAÇÃO
+    function animate() {
+      requestAnimationFrame(animate);
+
+      updateSmoke();
+
+      if (!isPlaying) {
+        cameraAngle += 0.008;
+        camera.position.x = Math.sin(cameraAngle) * 4.5;
+        camera.position.z = Math.cos(cameraAngle) * 4.5;
+        camera.position.y = 3.0;
+      } else if (!inMinigame) {
+        mouse.x += (targetMouse.x - mouse.x) * 0.05;
+        mouse.y += (targetMouse.y - mouse.y) * 0.05;
+
+        camera.position.x = initialCamPos.x + mouse.x;
+        camera.position.y = initialCamPos.y + mouse.y;
+        camera.position.z = initialCamPos.z;
+
+        if (clocheGroup.position.y < 6) {
+          clocheGroup.position.y += 0.08;
+          clocheGroup.rotation.y += 0.05;
+        }
+      }
+
+      // TREMOR DO ARMÁRIO
+      if (isPlaying && monsterState === 'idle') {
+        let shakeAmount = 0;
+        if (cabinetTimeLeft <= 60) {
+          shakeAmount = 0.08;
+        } else if (cabinetTimeLeft <= 120) {
+          shakeAmount = 0.04;
+        } else if (cabinetTimeLeft <= 180) {
+          shakeAmount = 0.015;
+        }
+
+        if (shakeAmount > 0) {
+          cabinetGroup.position.x = (Math.random() - 0.5) * shakeAmount;
+          cabinetGroup.position.z = -4.2 + (Math.random() - 0.5) * shakeAmount;
+        } else {
+          cabinetGroup.position.x = 0;
+          cabinetGroup.position.z = -4.2;
+        }
+      } else {
+        cabinetGroup.position.x = 0;
+        cabinetGroup.position.z = -4.2;
+      }
+
+      // QUEDA DAS PORTAS
+      if (doorsFalling) {
+        const gravity = 0.015;
+        if (leftDoorPhysics.y > 0.55) {
+          leftDoorPhysics.velY -= gravity;
+          leftDoorPhysics.y += leftDoorPhysics.velY;
+          leftDoorPhysics.z += 0.03;
+          leftDoorPhysics.rotX += leftDoorPhysics.rotVelX;
+          leftDoorPhysics.rotZ += leftDoorPhysics.rotVelZ;
+
+          leftDoorPivot.position.y = leftDoorPhysics.y;
+          leftDoorPivot.position.z = leftDoorPhysics.z;
+          leftDoorPivot.rotation.x = leftDoorPhysics.rotX;
+          leftDoorPivot.rotation.z = leftDoorPhysics.rotZ;
+        }
+
+        if (rightDoorPhysics.y > 0.55) {
+          rightDoorPhysics.velY -= gravity;
+          rightDoorPhysics.y += rightDoorPhysics.velY;
+          rightDoorPhysics.z += 0.03;
+          rightDoorPhysics.rotX += rightDoorPhysics.rotVelX;
+          rightDoorPhysics.rotZ += rightDoorPhysics.rotVelZ;
+
+          rightDoorPivot.position.y = rightDoorPhysics.y;
+          rightDoorPivot.position.z = rightDoorPhysics.z;
+          rightDoorPivot.rotation.x = rightDoorPhysics.rotX;
+          rightDoorPivot.rotation.z = rightDoorPhysics.rotZ;
+        }
+      }
+
+      // MOVIMENTOS DO MONSTRO PRETO NO QUINTAL
+      if (monsterState === 'walk_around_to_back') {
+        monsterGroup.position.x += (-2.8 - monsterGroup.position.x) * 0.06;
+        monsterGroup.position.z += (-2.8 - monsterGroup.position.z) * 0.06;
+        if (Math.abs(monsterGroup.position.x - (-2.8)) < 0.2) monsterState = 'walk_to_table';
+      } else if (monsterState === 'walk_to_table') {
+        monsterGroup.position.x += (0 - monsterGroup.position.x) * 0.06;
+        monsterGroup.position.z += (-1.6 - monsterGroup.position.z) * 0.06;
+        if (Math.abs(monsterGroup.position.z - (-1.6)) < 0.1) monsterState = 'reach_hand';
+      } else if (monsterState === 'reach_hand') {
+        if (grabProgress < 1.0) {
+          grabProgress += 0.04;
+          rightArmPivot.rotation.x = -Math.PI / 2.2 * grabProgress;
+        } else {
+          potato.position.set(0, -1.1, 0);
+          rightArmPivot.add(potato);
+          if (potato2.visible) potato2.visible = false;
+          monsterState = 'grab_potato';
+        }
+      } else if (monsterState === 'grab_potato') {
+        if (grabProgress > 0) {
+          grabProgress -= 0.04;
+          rightArmPivot.rotation.x = -Math.PI / 2.2 * grabProgress;
+        } else {
+          monsterState = 'walk_back_around';
+        }
+      } else if (monsterState === 'walk_back_around') {
+        monsterGroup.position.x += (-2.8 - monsterGroup.position.x) * 0.06;
+        monsterGroup.position.z += (-2.8 - monsterGroup.position.z) * 0.06;
+        if (Math.abs(monsterGroup.position.x - (-2.8)) < 0.2) monsterState = 'return_to_cabinet';
+      } else if (monsterState === 'return_to_cabinet') {
+        monsterGroup.position.x += (0 - monsterGroup.position.x) * 0.06;
+        monsterGroup.position.z += (-4.0 - monsterGroup.position.z) * 0.06;
+        if (Math.abs(monsterGroup.position.z - (-4.0)) < 0.2) {
+          monsterGroup.visible = false;
+          monsterState = 'stolen_waiting_click';
+          alertTextContent.textContent = "Clique no armário para recuperar a batata!";
+          recoverAlert.style.display = 'flex';
+        }
+      }
+
+      camera.lookAt(lookAtTarget);
+      renderer.render(scene, camera);
+    }
+
+    animate();
+  </script>
+</body>
+</html>
